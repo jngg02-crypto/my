@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초등학생 시장놀이 시뮬레이션</title>
+    <style>
+        /* 기본 스타일 설정 */
+        :root {
+            --primary-color: #FFB6C1;
+            --secondary-color: #E0F7FA;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Jua', 'Nanum Gothic', sans-serif; /* 귀여운 폰트 사용 가정 */
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 상단 헤더 */
+        header {
+            background-color: #ff9a9e;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* 메인 콘텐츠 영역 */
+        main {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* 섹션 공통 스타일 */
+        .section-box {
+            background-color: #fff;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            padding: 15px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #555;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #ffd1dc;
+            padding-bottom: 10px;
+        }
+
+        /* 1. 물건 진열대 */
+        .shelf {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .item-btn {
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 120px;
+        }
+
+        .item-btn:active {
+            transform: scale(0.95);
+        }
+
+        .item-btn:hover {
+            border-color: #ff9a9e;
+            background-color: #fff0f5;
+        }
+
+        .item-img {
+            font-size: 3rem; /* 이모지로 사진 대체 (파일 로딩 문제 방지) */
+            margin-bottom: 10px;
+        }
+
+        .item-name { font-weight: bold; font-size: 1.1rem; }
+        .item-price { color: #ff6b6b; font-weight: bold; }
+
+        /* 2. 장바구니 및 계산 현황 */
+        .status-board {
+            display: flex;
+            justify-content: space-between;
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .price-display span {
+            color: #1976D2;
+            font-size: 1.5rem;
+        }
+
+        .payment-display span {
+            color: #388E3C;
+            font-size: 1.5rem;
+        }
+
+        /* 3. 내 지갑 (돈 내기) */
+        .wallet {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+            background-color: #fff8e1;
+        }
+
+        .money-btn {
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            font-weight: bold;
+            color: #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .money-btn:active { transform: translateY(2px); box-shadow: none; }
+
+        /* 지폐 스타일 */
+        .bill {
+            width: 120px;
+            height: 60px;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .bill-1000 { background-color: #aebbf5; color: #2c3e50; border: 1px solid #8fa1d8; }
+
+        /* 동전 스타일 */
+        .coin {
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .coin-100 {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #f0f0f0, #bdbdbd);
+            border: 2px solid #9e9e9e;
+        }
+
+        /* 요청사항: 500원 동전 아주 크게 */
+        .coin-500 {
+            width: 110px; /* 다른 동전의 약 2배 */
+            height: 110px;
+            background: radial-gradient(circle at 30% 30%, #fffbe6, #e6c15c); /* 금색 느낌 */
+            border: 4px solid #d4a017;
+            font-size: 1.5rem;
+            z-index: 10;
+        }
+
+        .coin-10 {
+            width: 45px;
+            height: 45px;
+            background: radial-gradient(circle at 30% 30%, #ffdcb8, #dba372);
+            border: 1px solid #b57b48;
+            font-size: 0.8rem;
+        }
+
+        /* 하단 컨트롤 버튼 */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-reset { background-color: #ffccbc; color: #d84315; }
+        .btn-reset:hover { background-color: #ffab91; }
+
+        .btn-pay { background-color: #c8e6c9; color: #2e7d32; }
+        .btn-pay:hover { background-color: #a5d6a7; }
+
+        /* 메시지 박스 */
+        #message-area {
+            text-align: center;
+            margin-top: 10px;
+            height: 30px;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        /* 반응형 */
+        @media (max-width: 600px) {
+            .shelf { justify-content: space-between; }
+            .item-btn { width: 45%; margin-bottom: 10px; }
+            .wallet { gap: 10px; }
+            .coin-500 { width: 90px; height: 90px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>🏫 즐거운 학교 매점 🏫</header>
+    
+    <main>
+        <!-- 1. 물건 고르기 섹션 -->
+        <div class="section-box">
+            <h2>🛒 물건을 골라 담아보세요</h2>
+            <div class="shelf">
+                <!-- 사과 버튼 -->
+                <button class="item-btn" onclick="addToCart(1000, '사과')">
+                    <span class="item-img">🍎</span>
+                    <span class="item-name">사과</span>
+                    <span class="item-price">1,000원</span>
+                </button>
+                <!-- 우유 버튼 -->
+                <button class="item-btn" onclick="addToCart(700, '우유')">
+                    <span class="item-img">🥛</span>
+                    <span class="item-name">우유</span>
+                    <span class="item-price">700원</span>
+                </button>
+                <!-- 추가 아이템 -->
+                <button class="item-btn" onclick="addToCart(500, '아이스크림')">
+                    <span class="item-img">🍦</span>
+                    <span class="item-name">아이스크림</span>
+                    <span class="item-price">500원</span>
+                </button>
+                <button class="item-btn" onclick="addToCart(300, '사탕')">
+                    <span class="item-img">🍬</span>
+                    <span class="item-name">사탕</span>
+                    <span class="item-price">300원</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. 금액 확인 섹션 -->
+        <div class="status-board">
+            <div class="price-display">
+                내야 할 돈: <span id="total-price">0</span>원
+            </div>
+            <div class="payment-display">
+                내가 낸 돈: <span id="current-pay">0</span>원
+            </div>
+        </div>
+
+        <!-- 3. 돈 내기 섹션 -->
+        <div class="section-box wallet">
+            <h2>👛 지갑에서 돈을 꺼내세요</h2>
+            <div style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <button class="money-btn bill bill-1000" onclick="addMoney(1000)">1000원</button>
+                
+                <!-- 요청하신 아주 큰 500원 동전 -->
+                <button class="money-btn coin coin-500" onclick="addMoney(500)">
+                    <span>500</span>
+                    <span style="font-size:0.8rem">원</span>
+                </button>
+                
+                <button class="money-btn coin coin-100" onclick="addMoney(100)">100</button>
+                <button class="money-btn coin coin-10" onclick="addMoney(10)">10</button>
+            </div>
+        </div>
+
+        <div id="message-area"></div>
+
+        <div class="controls">
+            <button class="btn btn-reset" onclick="resetAll()">다시 하기</button>
+            <button class="btn btn-pay" onclick="checkPayment()">계산하기 ✅</button>
+        </div>
+    </main>
+</div>
+
+<script>
+    let totalPrice = 0;
+    let currentPay = 0;
+
+    // 숫자를 3자리마다 콤마 찍어서 보여주는 함수
+    function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // 장바구니 담기
+    function addToCart(price, name) {
+        totalPrice += price;
+        updateDisplay();
+        showMessage(`${name}를 담았습니다! (+${price}원)`);
+    }
+
+    // 돈 내기
+    function addMoney(amount) {
+        currentPay += amount;
+        updateDisplay();
+        showMessage(`${amount}원을 냈습니다.`);
+    }
+
+    // 화면 업데이트
+    function updateDisplay() {
+        document.getElementById('total-price').textContent = formatNumber(totalPrice);
+        document.getElementById('current-pay').textContent = formatNumber(currentPay);
+        
+        // 돈을 낼 때마다 색상 피드백
+        const payDisplay = document.querySelector('.payment-display span');
+        if (currentPay >= totalPrice && totalPrice > 0) {
+            payDisplay.style.color = '#2e7d32'; // 충분하면 초록색
+        } else {
+            payDisplay.style.color = '#388E3C'; // 기본색
+        }
+    }
+
+    // 메시지 표시
+    function showMessage(text) {
+        const msgArea = document.getElementById('message-area');
+        msgArea.textContent = text;
+        msgArea.style.color = '#555';
+    }
+
+    // TTS 말하기 함수
+    function speak(text) {
+        // 브라우저가 TTS를 지원하는지 확인
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ko-KR'; // 한국어 설정
+            utterance.rate = 1.0; // 속도
+            utterance.pitch = 1.0; // 톤
+            window.speechSynthesis.speak(utterance);
+        } else {
+            console.log("이 브라우저는 음성 안내를 지원하지 않습니다.");
+        }
+    }
+
+    // 계산하기 (핵심 로직)
+    function checkPayment() {
+        const msgArea = document.getElementById('message-area');
+
+        if (totalPrice === 0) {
+            showMessage("물건을 먼저 골라주세요!");
+            speak("물건을 먼저 골라주세요.");
+            return;
+        }
+
+        if (currentPay < totalPrice) {
+            // 돈이 부족할 때
+            msgArea.style.color = 'red';
+            msgArea.textContent = `돈이 ${formatNumber(totalPrice - currentPay)}원 더 필요해요!`;
+            
+            // 요청하신 TTS 음성 안내
+            speak("돈이 더 필요해요.");
+            
+            // 시각적 효과 (흔들기)
+            const wallet = document.querySelector('.payment-display');
+            wallet.style.transform = 'translateX(5px)';
+            setTimeout(() => wallet.style.transform = 'translateX(0)', 100);
+            setTimeout(() => wallet.style.transform = 'translateX(-5px)', 200);
+            setTimeout(() => wallet.style.transform = 'translateX(0)', 300);
+
+        } else {
+            // 계산 성공
+            const change = currentPay - totalPrice;
+            msgArea.style.color = 'blue';
+            
+            let successMsg = "계산이 완료되었습니다!";
+            if (change > 0) {
+                successMsg += ` 거스름돈은 ${formatNumber(change)}원 입니다.`;
+            }
+            
+            msgArea.textContent = successMsg;
+            speak(successMsg);
+            
+            // 축하 효과 (간단한 배경 깜빡임)
+            document.querySelector('.container').style.backgroundColor = '#e8f5e9';
+            setTimeout(() => {
+                document.querySelector('.container').style.backgroundColor = 'white';
+            }, 500);
+        }
+    }
+
+    // 초기화
+    function resetAll() {
+        totalPrice = 0;
+        currentPay = 0;
+        updateDisplay();
+        showMessage("처음부터 다시 시작합니다.");
+        document.getElementById('message-area').style.color = '#555';
+    }
+</script>
+
+</body>
+</html>
